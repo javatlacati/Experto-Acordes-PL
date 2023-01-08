@@ -12,6 +12,22 @@ nota('A').
 nota('A#').
 nota('B').
 
+%%%%% intervalos%%%%
+% nombre   = distancia en tonos
+% 2ª menor = 0.5
+% 2ª Mayor = 1
+% 3ª menor = 1.5
+% 3ª Mayor = 2
+% 4ª Justa = 2.5
+% 4ª aum = 3.5
+% 5ª Justa = 4
+% 6ª menor = 4.5
+% 6ª Mayor = 5
+% 7ª menor = 5.5
+% 7ª Mayor = 6
+% 8ª Justa = 6.5
+
+% Semitono 0.5
 segunda_menor('C','C#').
 segunda_menor('C#','D').
 segunda_menor('D','D#').
@@ -24,38 +40,42 @@ segunda_menor('G#','A').
 segunda_menor('A','A#').
 segunda_menor('A#','B').
 segunda_menor('B','C').
-%%%%%%%%%Reglas%%%%%%%%%%%%%%%%%%%%
-%despues_que(X,Y):-antes_que(Y,X).
 
-intervalo_segunda_mayor(X,Z):-segunda_menor(X,Y),segunda_menor(Y,Z).
-intervalo_segunda_aumentada(X,Z):-segunda_menor(X,Y),intervalo_segunda_mayor(Y,Z).
-intervalo_tercera_menor(X,Z):-intervalo_segunda_mayor(X,Y),intervalo_segunda_mayor(Y,Z).
-intervalo_tercera_mayor(X,Z):-segunda_menor(X,Y),intervalo_tercera_menor(Y,Z).
-intervalo_cuarta_justa(X,Z):-segunda_menor(X,Y),intervalo_tercera_mayor(Y,Z).
-intervalo_cuarta_aumentada(X,Z):-segunda_menor(X,Y),intervalo_cuarta_justa(Y,Z).
-intervalo_quinta_disminuida(X,Z):-intervalo_tercera_menor(X,Y),intervalo_tercera_menor(Y,Z).
-intervalo_quinta_justa(X,Z):-segunda_menor(X,Y),intervalo_quinta_disminuida(Y,Z).
-intervalo_quinta_aumentada(X,Z):-segunda_menor(X,Y),intervalo_quinta_justa(Y,Z).
-intervalo_sexta_menor(X,Z):-segunda_menor(X,Y),intervalo_quinta_aumentada(Y,Z).
+% segunda_mayor tambien es la novena mayor
+segunda_mayor(Nota1,Nota3):-segunda_menor(Nota1,Nota2),segunda_menor(Nota2,Nota3).
+tercera_menor(Nota1,Nota3):-segunda_menor(Nota1,Nota2),segunda_mayor(Nota2,Nota3).
+tercera_mayor(Nota1,Nota3):-segunda_mayor(Nota1,Nota2),segunda_mayor(Nota2,Nota3).
+cuarta_justa(Nota1,Nota3):-segunda_menor(Nota1,Nota2),tercera_mayor(Nota2,Nota3).
+cuarta_aumentada(Nota1,Nota3):-segunda_menor(Nota1,Nota2),cuarta_justa(Nota2,Nota3).
+quinta_justa(Nota1,Nota3):- segunda_menor(Nota1,Nota2),cuarta_aumentada(Nota2,Nota3).
+sexta_menor(Nota1,Nota3):- segunda_menor(Nota1,Nota2),quinta_justa(Nota2,Nota3).
+sexta_mayor(Nota1,Nota3):- segunda_menor(Nota1,Nota2),sexta_menor(Nota2,Nota3).
+septima_menor(Nota1,Nota3):- segunda_menor(Nota1,Nota2),sexta_mayor(Nota2,Nota3).
+septima_mayor(Nota1,Nota3):-segunda_menor(Nota1,Nota2),septima_menor(Nota2,Nota3).
+octava_justa(Nota1,Nota3):- segunda_menor(Nota1,Nota2),septima_mayor(Nota2,Nota3).
 
-acorde_mayor(X,Y,Z):-intervalo_tercera_menor(X,Y),intervalo_cuarta_aumentada(X,Z).
-acorde_menor(X,Y,Z):-intervalo_segunda_aumentada(X,Y),intervalo_cuarta_aumentada(X,Z).
-acorde_septima(X,Y,Z,W):-acorde_mayor(X,Y,Z),intervalo_sexta_menor(X,W).
-acorde_septima(X,Y,Z,W):-acorde_menor(X,Y,Z),intervalo_sexta_menor(X,W).
-acorde_mayor_sexta(X,Y,Z,W):-intervalo_tercera_menor(X,Y),intervalo_tercera_mayor(X,Z),intervalo_quinta_justa(X,W).
-acorde_menor_sexta(X,Y,Z,W):-intervalo_segunda_aumentada(X,Y),intervalo_tercera_mayor(X,Z),intervalo_quinta_justa(X,W).
+%%tipos de acordes
+acorde_mayor(Nota1,Nota2,Nota3):-tercera_mayor(Nota1,Nota2),quinta_justa(Nota1,Nota3).
+acorde_menor(Nota1,Nota2,Nota3):-tercera_menor(Nota1,Nota2),quinta_justa(Nota1,Nota3).
+acorde_mayor_septima(Nota1,Nota2,Nota3,Nota4):-acorde_mayor(Nota1,Nota2,Nota3),septima_mayor(Nota1,Nota4).
+acorde_menor_septima(Nota1,Nota2,Nota3,Nota4):-acorde_menor(Nota1,Nota2,Nota3),septima_menor(Nota1,Nota4).
+acorde_mayor_sexta(Nota1,Nota2,Nota3,Nota4):-tercera_mayor(Nota1,Nota2),quinta_justa(Nota1,Nota3),sexta_mayor(Nota1,Nota4).
+acorde_menor_sexta(Nota1,Nota2,Nota3,Nota4):-tercera_menor(Nota1,Nota2),quinta_justa(Nota1,Nota3),sexta_mayor(Nota1,Nota4).
+%Acorde disminuido: un acorde menor que incluye una quinta disminuida
+%Acorde aumentado: un acorde mayor que incluye una quinta aumentada
 
 %%%%%%%%%%%%%%% CLI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-acorde(X,Y,Z,Nombre):-acorde_mayor(X,Y,Z),swritef(Nombre, '%2L%w', [X, 'Mayor']).
-acorde(X,Y,Z,Nombre):-acorde_menor(X,Y,Z),swritef(Nombre, '%2L%w', [X, 'Menor']).
+acorde(Nota1,Nota2,Nota3,Nombre):-acorde_mayor(Nota1,Nota2,Nota3),swritef(Nombre, '%2L%w', [Nota1, 'Mayor']).
+acorde(Nota1,Nota2,Nota3,Nombre):-acorde_menor(Nota1,Nota2,Nota3),swritef(Nombre, '%2L%w', [Nota1, 'Menor']).
 %recursivodad con problemas en producción
-acorde(X,Y,Z,Nombre):-acorde(Y,X,Z,Nombre),!|acorde(Z,X,Y,Nombre),!|acorde(Z,Y,X,Nombre),!|acorde(X,Z,Y,Nombre),!.
+acorde(Nota1,Nota2,Nota3,Nombre):-acorde(Nota2,Nota1,Nota3,Nombre),!|acorde(Nota3,Nota1,Nota2,Nombre),!|acorde(Nota3,Nota2,Nota1,Nombre),!|acorde(Nota1,Nota3,Nota2,Nombre),!.
 
 %transposiciones
 
-acorde(X,Y,Z,W,Nombre):-acorde_mayor_sexta(X,Y,Z,W),swritef(Nombre, '%2L%w', [X, 'Mayor Sexta']).
-acorde(X,Y,Z,W,Nombre):-acorde_menor_sexta(X,Y,Z,W),swritef(Nombre, '%2L%w', [X, 'Menor Sexta']).
+acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde_mayor_sexta(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nota1, 'Mayor Sexta']).
+acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde_menor_sexta(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nota1, 'Menor Sexta']).
 
-acorde(X,Y,Z,W,Nombre):-acorde(X,Y,Z,Nombre1),acorde_septima(X,Y,Z,W),swritef(Nombre, '%2L%w', [Nombre1, 'Séptima']).
-%acorde(X,Y,Z,W,Nombre):-acorde_mayor_septima(X,Y,Z,W),swritef(Nombre, '%2L%w', [X, 'Séptima Mayor']).
-%acorde(X,Y,Z,W,Nombre):-acorde_menor_septima(X,Y,Z,W),swritef(Nombre, '%2L%w', [X, 'Séptima Menor']).
+acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde(Nota1,Nota2,Nota3,Nombre1),acorde_menor_septima(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nombre1, 'Menor Séptima']).
+acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde(Nota1,Nota2,Nota3,Nombre1),acorde_mayor_septima(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nombre1, 'Mayor Séptima']).
+%acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde_mayor_septima(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nota1, 'Séptima Mayor']).
+%acorde(Nota1,Nota2,Nota3,Nota4,Nombre):-acorde_menor_septima(Nota1,Nota2,Nota3,Nota4),swritef(Nombre, '%2L%w', [Nota1, 'Séptima Menor']).
